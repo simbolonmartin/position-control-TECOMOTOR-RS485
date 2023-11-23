@@ -8,10 +8,11 @@ from geometry_msgs.msg import Twist
 
 
 class MotorCommunication():
-    modem_device = "/dev/motor_wrist"
-    baud_rate = 9600
-    timex = 3
-    ser = None
+    def __init__(self) -> None:
+        self.modem_device = "/dev/motor_wrist"
+        self.baud_rate = 9600
+        self.timex = 3
+        self.ser = None
 
     def check_conn(self):
         try:
@@ -23,7 +24,6 @@ class MotorCommunication():
     
     def initialize_driver(self):
         intialize_servo_ON = [0x01, 0x06, 0x05, 0x12, 0x00, 0x01, 0xE8, 0xC3]
-        
         try:
             res = self.ser.write(intialize_servo_ON)
             print("Initialization complete")
@@ -32,59 +32,40 @@ class MotorCommunication():
             response = response.hex(":")
             # # result = hex(int.from_bytes(res, byteorder='big'))
             print(response)
+            print()
         except:
             print("Initialization failed")
+            print()
         time.sleep(3)
 
     def s16(self, value):
         return -(value & 0x8000) | (value & 0x7fff)
 
-    def test_send_message_position(self):
+    def send_message_position(self, degree):
         internalJog         = [0x01, 0x06, 0x05, 0x12, 0x00, 0x21, 0xE9, 0x1B]
         setControlSpeed     = [0x01, 0x06, 0x02, 0x01, 0x00, 0XC8, 0xD8, 0x24] #200rpm
-        setControlSpeed_500 = [0x01, 0x06, 0x02, 0x01, 0x01, 0XF4, 0xD9, 0xA5] #200rpm
-
+        setControlSpeed_500 = [0x01, 0x06, 0x02, 0x01, 0x01, 0XF4, 0xD9, 0xA5] #500rpm
         stopInternalJog     = [0x01, 0x06, 0x05, 0x12, 0x00, 0x01, 0xE8, 0xC3]
         controlHomingStart  = [0x01, 0x06, 0x05, 0x12, 0x02, 0x01, 0xE9, 0xA3]
         monitorHoming       = [0x01, 0x03, 0x06, 0x1E, 0x00, 0x01, 0xE4, 0x84]
         closeHoming         = [0x01, 0x06, 0x05, 0x12, 0x00, 0x01, 0xE8, 0xC3]
-
-        #move with target position = 0 rev and 1000 pulse 
-        setPosition         = [0x01, 0x10, 0x07, 0x01, 0x00, 0x04, 0x08, 0x00, 0x00, 0x03, 0xE8, 0x00, 0x00, 0x00, 0x0A, 0xA0, 0xDD] 
-        #move with target position = 1 rev and 1000 pulse
-        setPosition2        = [0x01, 0x10, 0x07, 0x01, 0x00, 0x04, 0x08, 0x00, 0x01, 0x03, 0xE8, 0x00, 0x00, 0x00, 0x64, 0x54, 0xD5]
-        #move with target position = 160 rev and 0 pulse with speed 100 rpm
-        setPosition3        = [0x01, 0x10, 0x07, 0x01, 0x00, 0x04, 0x08, 0x00, 0xA0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x64, 0xE1, 0x1F]
-
-        #move with target position = 160 rev and 0 pulse with speed 1000 rpm
-        setPosition3_1000rpm       = [0x01, 0x10, 0x07, 0x01, 0x00, 0x04, 0x08, 0x00, 0xA0, 0x00, 0x00, 0x00, 0x00, 0x03, 0xE8, 0xE0, 0x4A]
-        
-        #move with target position = -160 rev and 0 pulse with speed 1000 rpm
-        setPosition4_1000rpm       = [0x01, 0x10, 0x07, 0x01, 0x00, 0x04, 0x08, 0xFF, 0x60, 0x00, 0x00, 0x00, 0x00, 0x03, 0xE8, 0x6F, 0x42]
-        
-        #move with target position = -1000 rev and 0 pulse with speed 1000 rpm
-        setPosition5_1000rpm       = [0x01, 0x10, 0x07, 0x01, 0x00, 0x04, 0x08, 0xFC, 0x18, 0x00, 0x00, 0x00, 0x00, 0x03, 0xE8, 0xD7, 0x50]
-        
-        #make +90, -90, 0
-        setPosition_360Degree         = [0x01, 0x06, 0x07, 0x01, 0x00, 0xA0, 0xD9, 0x06]
-
-        #define positive = CW
-        # effective after restart
-        setDirectionCW = [0x01, 0x06, 0x03, 0x14, 0x00, 0x00, 0xC9, 0x8A]
-        
-        #define positive = CCW
-        # effective after restart
-        setDirectionCCW = [0x01, 0x06, 0x03, 0x14, 0x00, 0x01, 0x08, 0x4A]
-        
         triggerMovement     = [0x01, 0x06, 0x05, 0x12, 0x00, 0x81, 0xE9, 0x63]
         stop_movement       = [0x01, 0x06, 0x05, 0x12, 0x00, 0x01, 0xE8, 0xC3] #must complete the trigger movement first
- 
+        #move with target position = 0 rev and 1000 pulse 
+        # setPosition         = [0x01, 0x10, 0x07, 0x01, 0x00, 0x04, 0x08, 0x00, 0x00, 0x03, 0xE8, 0x00, 0x00, 0x00, 0x0A, 0xA0, 0xDD]
+        # define positive = CW
+        # effective after restart
+        # setDirectionCW = [0x01, 0x06, 0x03, 0x14, 0x00, 0x00, 0xC9, 0x8A]
+        
+        # define positive = CCW
+        # effective after restart
+        # setDirectionCCW = [0x01, 0x06, 0x03, 0x14, 0x00, 0x01, 0x08, 0x4A]
+  
         # print("internalJog")
         # res = self.ser.write(internalJog)
         # self.read_response(8)
         # self.read_current_alarm()
         # time.sleep(10)
-
 
         # print("setControlSpeed")
         # res = self.ser.write(setControlSpeed_500)
@@ -116,42 +97,6 @@ class MotorCommunication():
         # self.read_current_alarm()
         # time.sleep(1)
 
-        # print("setPosition")
-        # res = self.ser.write(setPosition)
-        # self.read_response(8)
-        # self.read_current_alarm()
-        # time.sleep(0.1)
-
-        # print("triggerMovement")
-        # res = self.ser.write(triggerMovement)
-        # self.read_response(8)
-        # self.read_current_alarm()
-        # time.sleep(5)
-
-        # print("stop_movement")
-        # res = self.ser.write(stop_movement)
-        # self.read_response(8)
-        # time.sleep(2)
-        # self.read_current_alarm()
-
-        # print("setPosition2")
-        # res = self.ser.write(setPosition2)
-        # self.read_response(8)
-        # self.read_current_alarm()
-        # time.sleep(0.1)
-
-        # print("triggerMovement")
-        # res = self.ser.write(triggerMovement)
-        # self.read_response(8)
-        # self.read_current_alarm()
-        # time.sleep(3)
-
-        # print("stop_movement")
-        # res = self.ser.write(stop_movement)
-        # self.read_response(8)
-        # time.sleep(2)
-        # self.read_current_alarm()
-
         # print("setDirectionCW")
         # res = self.ser.write(setDirectionCW)
         # self.read_response(8)
@@ -164,9 +109,9 @@ class MotorCommunication():
         # self.read_current_alarm()
         # time.sleep(0.1)
 
-        print("setPosition_360Degree")
-        res = self.ser.write(setPosition_360Degree)
-
+        print(f"Set Position to {degree} degree.")
+        message = self.degree_to_hex_with_CRC(degree)
+        res = self.ser.write(message)
         self.read_response(8)
         self.read_current_alarm()
         time.sleep(0.1)
@@ -175,13 +120,23 @@ class MotorCommunication():
         res = self.ser.write(triggerMovement)
         self.read_response(8)
         self.read_current_alarm()
-        time.sleep(13)
+        # time.sleep(0.5)
 
         print("stop_movement")
         res = self.ser.write(stop_movement)
         self.read_response(8)
-        time.sleep(2)
+        # time.sleep()
         self.read_current_alarm()
+
+
+    def set_speed(self):
+        #current speed is 1000 rpm without gear reduction
+        setSpeed = [0x01, 0x06, 0x07, 0x04, 0x03, 0xE8, 0xC9, 0xC1]
+        print("Set speed")
+        res = self.ser.write(setSpeed)
+        self.read_response(8)
+        self.read_current_alarm()
+        time.sleep(0.1)
         
     def test_send_speed(self):
         speed200rpm = [0x01, 0x06, 0x02, 0x01, 0x00, 0xC8, 0xD8, 0x24]
@@ -219,6 +174,22 @@ class MotorCommunication():
         number_of_revolution =  int(4 * degree // 9)
         return number_of_revolution
 
+    def change_positioning_mode(self, positioningMode="absolute") -> None:
+        """ This only effective after power restart on the driver.
+        """
+        initial_array = [0x01, 0x06, 0x03, 0x26]
+        if positioningMode == "absolute":
+            register_value = [0x00, 0x00]
+        elif positioningMode == "relative":
+            register_value = [0x00, 0x01]
+        else:
+            print("Invalid positioning method, see the documentation on page 5-45")
+        pre_CRC = initial_array + register_value
+        CRC_two_bytes = self.calculate_modbus_crc(pre_CRC)
+        final_message_positioning_mode = pre_CRC + list(CRC_two_bytes)
+        res =  self.ser.write(final_message_positioning_mode)
+        self.read_response(8)
+        print(f"Change the positioning mode to {positioningMode}.")
 
     def revolution_to_byte_command(self, revolution):
         return int.to_bytes(revolution, 2, 'big', signed=True)
@@ -239,7 +210,7 @@ class MotorCommunication():
         return crc.to_bytes(2, byteorder='big')
 
     def degree_to_hex_with_CRC(self, degree):
-        initial_array = [0x01, 0x07, 0x01]
+        initial_array = [0x01, 0x06, 0x07, 0x01]
         revolution = self.degree_to_revolution(degree)
         revolution_byte = list(self.revolution_to_byte_command(revolution))
         pre_CRC = initial_array + revolution_byte
@@ -247,11 +218,18 @@ class MotorCommunication():
         final_message = pre_CRC + list(CRC_two_bytes)
         return final_message
 
-
-
 if __name__ == "__main__":
     handle = MotorCommunication()
     handle.check_conn()
     handle.initialize_driver()
-    handle.test_send_message_position()
+    # handle.change_positioning_mode()
+    handle.set_speed()
+    handle.send_message_position(45)
+    handle.send_message_position(90)
+    handle.send_message_position(0)
+    handle.send_message_position(-30)
+    handle.send_message_position(-60)
+    handle.send_message_position(0)
+
+
     print("Finished")
