@@ -109,24 +109,25 @@ class MotorCommunication():
         # self.read_current_alarm()
         # time.sleep(0.1)
 
-        print(f"Set Position to {degree} degree.")
+        # print(f"Set Position to {degree} degree.")
         message = self.degree_to_hex_with_CRC(degree)
         res = self.ser.write(message)
         self.read_response(8)
-        self.read_current_alarm()
-        time.sleep(0.1)
+        # self.read_current_alarm()
+        # time.sleep(0.1)
 
-        print("triggerMovement")
+        # print("triggerMovement")
         res = self.ser.write(triggerMovement)
         self.read_response(8)
         self.read_current_alarm()
         # time.sleep(0.5)
 
-        print("stop_movement")
+        # print("stop_movement")
         res = self.ser.write(stop_movement)
         self.read_response(8)
         # time.sleep()
-        self.read_current_alarm()
+        # self.read_current_alarm()
+        # time.sleep(0.01)
 
 
     def set_speed(self):
@@ -222,7 +223,6 @@ if __name__ == "__main__":
     handle = MotorCommunication()
     handle.check_conn()
     handle.initialize_driver()
-    # handle.change_positioning_mode()
     handle.set_speed()
     handle.send_message_position(45)
     handle.send_message_position(90)

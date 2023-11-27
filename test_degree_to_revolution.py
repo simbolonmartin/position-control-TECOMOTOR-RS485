@@ -6,6 +6,9 @@ def degree_to_revolution(self, degree):
     number_of_revolution =  int(4 * degree // 9)
     return number_of_revolution
 
+
+
+
 degree_to_revolution(90)
 
 

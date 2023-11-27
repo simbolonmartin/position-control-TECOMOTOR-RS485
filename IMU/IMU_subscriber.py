@@ -20,15 +20,19 @@ class IMUCommunication():
         self.pitch = p*180/3.1415926
         self.yaw = y*180/3.1415926
 
-    def get_imu(self):
+    def get_imu(self, function):
         rospy.init_node('get_imu', anonymous=True)
         rospy.Subscriber("/handsfree/imu", Imu, self.callback)
-        frequency = 1
+        frequency = 0.5
         rate = rospy.Rate(frequency)
         while not rospy.is_shutdown():
-            print(self.pitch) #put the needed function here
+            function(-self.pitch)
+            # print(self.pitch) #put the needed function here
             rate.sleep()
+    
+    def print_pitch(self):
+        print(self.pitch)
 
 if __name__ == '__main__':
     imuCommunication = IMUCommunication()
-    imuCommunication.get_imu()
+    imuCommunication.get_imu(imuCommunication.print_pitch)
