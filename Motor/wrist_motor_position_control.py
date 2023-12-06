@@ -41,98 +41,43 @@ class MotorCommunication():
     def s16(self, value):
         return -(value & 0x8000) | (value & 0x7fff)
 
-    def send_message_position(self, degree):
+    def send_message_position(self, degree):        
+        # internalJog         = [0x01, 0x06, 0x05, 0x12, 0x00, 0x21, 0xE9, 0x1B]
+        # setControlSpeed     = [0x01, 0x06, 0x02, 0x01, 0x00, 0XC8, 0xD8, 0x24] #200rpm
+        # setControlSpeed_500 = [0x01, 0x06, 0x02, 0x01, 0x01, 0XF4, 0xD9, 0xA5] #500rpm
+        # stopInternalJog     = [0x01, 0x06, 0x05, 0x12, 0x00, 0x01, 0xE8, 0xC3]
+        # controlHomingStart  = [0x01, 0x06, 0x05, 0x12, 0x02, 0x01, 0xE9, 0xA3]
+        # monitorHoming       = [0x01, 0x03, 0x06, 0x1E, 0x00, 0x01, 0xE4, 0x84]
+        # closeHoming         = [0x01, 0x06, 0x05, 0x12, 0x00, 0x01, 0xE8, 0xC3]
+        triggerMovement     = [0x01, 0x06, 0x05, 0x12, 0x00, 0x81, 0xE9, 0x63]
+        stop_movement       = [0x01, 0x06, 0x05, 0x12, 0x00, 0x01, 0xE8, 0xC3] #must complete the trigger movement first
+        
         if degree < -20:
             print(f"Minimum limit approached: {degree} is less than -20 degree")
         elif degree > 12:
             print(f"Maximum limit approached: {degree} is greater than 12 degree")
         else:
             degree = -degree
-        internalJog         = [0x01, 0x06, 0x05, 0x12, 0x00, 0x21, 0xE9, 0x1B]
-        setControlSpeed     = [0x01, 0x06, 0x02, 0x01, 0x00, 0XC8, 0xD8, 0x24] #200rpm
-        setControlSpeed_500 = [0x01, 0x06, 0x02, 0x01, 0x01, 0XF4, 0xD9, 0xA5] #500rpm
-        stopInternalJog     = [0x01, 0x06, 0x05, 0x12, 0x00, 0x01, 0xE8, 0xC3]
-        controlHomingStart  = [0x01, 0x06, 0x05, 0x12, 0x02, 0x01, 0xE9, 0xA3]
-        monitorHoming       = [0x01, 0x03, 0x06, 0x1E, 0x00, 0x01, 0xE4, 0x84]
-        closeHoming         = [0x01, 0x06, 0x05, 0x12, 0x00, 0x01, 0xE8, 0xC3]
-        triggerMovement     = [0x01, 0x06, 0x05, 0x12, 0x00, 0x81, 0xE9, 0x63]
-        stop_movement       = [0x01, 0x06, 0x05, 0x12, 0x00, 0x01, 0xE8, 0xC3] #must complete the trigger movement first
-        #move with target position = 0 rev and 1000 pulse 
-        # setPosition         = [0x01, 0x10, 0x07, 0x01, 0x00, 0x04, 0x08, 0x00, 0x00, 0x03, 0xE8, 0x00, 0x00, 0x00, 0x0A, 0xA0, 0xDD]
-        # define positive = CW
-        # effective after restart
-        # setDirectionCW = [0x01, 0x06, 0x03, 0x14, 0x00, 0x00, 0xC9, 0x8A]
-        
-        # define positive = CCW
-        # effective after restart
-        # setDirectionCCW = [0x01, 0x06, 0x03, 0x14, 0x00, 0x01, 0x08, 0x4A]
-  
-        # print("internalJog")
-        # res = self.ser.write(internalJog)
-        # self.read_response(8)
-        # self.read_current_alarm()
-        # time.sleep(10)
+            print(f"Set Position to {-1*degree} degree.")
+            message = self.degree_to_hex_with_CRC(degree)
+            res = self.ser.write(message)
+            self.read_response(8)
+            # self.read_current_alarm()
+            # time.sleep(0.1)
 
-        # print("setControlSpeed")
-        # res = self.ser.write(setControlSpeed_500)
-        # self.read_response(8)
-        # self.read_current_alarm()
-        # time.sleep(10)
+            # print("triggerMovement")
+            res = self.ser.write(triggerMovement)
+            self.read_response(8)
+            # self.read_current_alarm()
+            # time.sleep(0.5)
 
-        # print("stopInternalJog")
-        # res = self.ser.write(stopInternalJog)
-        # self.read_response(8)
-        # self.read_current_alarm()
-        # time.sleep(3)
+            # print("stop_movement")
+            res = self.ser.write(stop_movement)
+            # self.read_response(8)
+            # time.sleep()
+            # self.read_current_alarm()
+            time.sleep(0.05)
 
-        # print("controlHomingStart")
-        # res = self.ser.write(controlHomingStart)
-        # self.read_response(8)
-        # self.read_current_alarm()
-        # time.sleep(10)
-
-        # print("monitorHoming")
-        # res = self.ser.write(monitorHoming)
-        # self.read_response(7)
-        # self.read_current_alarm()
-        # time.sleep(1)
-    
-        # print("closeHoming")
-        # res = self.ser.write(closeHoming)
-        # self.read_response(8)
-        # self.read_current_alarm()
-        # time.sleep(1)
-
-        # print("setDirectionCW")
-        # res = self.ser.write(setDirectionCW)
-        # self.read_response(8)
-        # self.read_current_alarm()
-        # time.sleep(0.1)
-
-        # print("setDirectionCCW")
-        # res = self.ser.write(setDirectionCCW)
-        # self.read_response(8)
-        # self.read_current_alarm()
-        # time.sleep(0.1)
-
-        # print(f"Set Position to {degree} degree.")
-        message = self.degree_to_hex_with_CRC(degree)
-        res = self.ser.write(message)
-        self.read_response(8)
-        # self.read_current_alarm()
-        # time.sleep(0.1)
-
-        # print("triggerMovement")
-        res = self.ser.write(triggerMovement)
-        self.read_response(8)
-        self.read_current_alarm()
-        # time.sleep(0.5)
-
-        # print("stop_movement")
-        res = self.ser.write(stop_movement)
-        self.read_response(8)
-        # time.sleep()
-        # self.read_current_alarm()
 
 
     def set_speed(self):
@@ -230,15 +175,5 @@ if __name__ == "__main__":
     handle.initialize_driver()
     handle.set_speed()
     handle.send_message_position(0)
-    time.sleep(3)
-    # handle.send_message_position(5)
-    # time.sleep(3)
-    # handle.send_message_position(10)
-    # time.sleep(3)
-    # handle.send_message_position(0)
-    # time.sleep(3)
-    # handle.send_message_position(0)
-
-
 
     print("Finished")
