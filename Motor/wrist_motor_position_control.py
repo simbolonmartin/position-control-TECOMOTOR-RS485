@@ -42,6 +42,12 @@ class MotorCommunication():
         return -(value & 0x8000) | (value & 0x7fff)
 
     def send_message_position(self, degree):
+        if degree < -20:
+            print(f"Minimum limit approached: {degree} is less than -20 degree")
+        elif degree > 12:
+            print(f"Maximum limit approached: {degree} is greater than 12 degree")
+        else:
+            degree = -degree
         internalJog         = [0x01, 0x06, 0x05, 0x12, 0x00, 0x21, 0xE9, 0x1B]
         setControlSpeed     = [0x01, 0x06, 0x02, 0x01, 0x00, 0XC8, 0xD8, 0x24] #200rpm
         setControlSpeed_500 = [0x01, 0x06, 0x02, 0x01, 0x01, 0XF4, 0xD9, 0xA5] #500rpm
@@ -127,7 +133,6 @@ class MotorCommunication():
         self.read_response(8)
         # time.sleep()
         # self.read_current_alarm()
-        # time.sleep(0.01)
 
 
     def set_speed(self):
@@ -224,12 +229,16 @@ if __name__ == "__main__":
     handle.check_conn()
     handle.initialize_driver()
     handle.set_speed()
-    handle.send_message_position(45)
-    handle.send_message_position(90)
     handle.send_message_position(0)
-    handle.send_message_position(-30)
-    handle.send_message_position(-60)
-    handle.send_message_position(0)
+    time.sleep(3)
+    # handle.send_message_position(5)
+    # time.sleep(3)
+    # handle.send_message_position(10)
+    # time.sleep(3)
+    # handle.send_message_position(0)
+    # time.sleep(3)
+    # handle.send_message_position(0)
+
 
 
     print("Finished")
