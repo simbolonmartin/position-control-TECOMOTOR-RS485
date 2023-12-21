@@ -78,8 +78,6 @@ class MotorCommunication():
             # self.read_current_alarm()
             time.sleep(0.05)
 
-
-
     def set_speed(self):
         #current speed is 1000 rpm without gear reduction
         setSpeed = [0x01, 0x06, 0x07, 0x04, 0x03, 0xE8, 0xC9, 0xC1]
@@ -124,6 +122,19 @@ class MotorCommunication():
         #can be improved by sending the pulse, we have 2500 ppr encoder
         number_of_revolution =  int(4 * degree // 9)
         return number_of_revolution
+    
+    def degree_to_pulse(self, degree: float) -> int:
+        """
+        This function is used to increase the accuracy of the positioning control.    
+
+        Args:
+            degree (float): the angle input
+
+        Returns:
+            int: number of pulse
+        """
+        number_of_pulse = int(4 * degree % 9 / 9 * 2500)
+        return number_of_pulse        
 
     def change_positioning_mode(self, positioningMode="absolute") -> None:
         """ This only effective after power restart on the driver.
